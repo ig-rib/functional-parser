@@ -29,13 +29,26 @@ whitespace = void $ Text.Parsec.many $ oneOf " \n\t"
 lexeme2 :: Parser a -> Parser a
 lexeme2 p = p <* whitespace
 
+subdomains :: Parser String
+subdomains =
+        try ((:) <$> alphaNum <*> subdomains)
+        Control.Applicative.<|>
+        try ((++) <$> ((:) <$> alphaNum <*> (string "/")) <*> option "" subdomains)
+        Control.Applicative.<|>
+        try ((: []) <$> alphaNum) 
+
 requestTarget :: Parser RequestTarget
 requestTarget = do
-    s <- string "/"
-    return (RequestTarget s)
+    s <- char '/'
+    sds <- Text.Parsec.option "" subdomains
+    return (RequestTarget (s:sds))
 
 startLine :: Parser HTTPStartLine
 startLine = do
-    m <- lexeme2 method
-    rt <- lexeme2 requestTarget
-    return (HTTPStartLine m rt (HTTPVersion 1.1))
+    m <- method
+    char ' '
+    rt <- requestTarget
+    char ' '
+    string "HTTP/"
+    vno <- try (choice [string "1.0", string "1.1", string "2"])
+    return (HTTPStartLine m rt (HTTPVersion (read vno)))
