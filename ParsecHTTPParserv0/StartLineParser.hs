@@ -1,6 +1,6 @@
+module StartLineParser where
 import Text.Parsec
 import Text.Parsec.String
-import Text.Parsec.Token
 import Text.Parsec.Language
 import Control.Applicative
 import Control.Monad
@@ -10,7 +10,6 @@ newtype RequestTarget = RequestTarget String deriving (Eq, Show)
 newtype HTTPVersion = HTTPVersion Double deriving (Eq, Show)
 data HTTPStartLine = HTTPStartLine Method RequestTarget HTTPVersion deriving (Eq, Show)
 
-lexer = makeTokenParser emptyDef
 
 method :: Parser Method
 method = do
@@ -33,7 +32,7 @@ subdomains :: Parser String
 subdomains =
         try ((:) <$> alphaNum <*> subdomains)
         Control.Applicative.<|>
-        try ((++) <$> ((:) <$> alphaNum <*> (string "/")) <*> option "" subdomains)
+        try ((++) <$> ((:) <$> alphaNum <*> string "/") <*> option "" subdomains)
         Control.Applicative.<|>
         try ((: []) <$> alphaNum) 
 
