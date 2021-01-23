@@ -49,5 +49,5 @@ startLine = do
     rt <- requestTarget
     char ' '
     string "HTTP/"
-    vno <- try (choice [string "1.0", string "1.1", string "2"])
+    vno <- choice [try (string "1.0"), try (string "1.1"), string "2"]
     return (HTTPStartLine m rt (HTTPVersion (read vno)))
