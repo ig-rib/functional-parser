@@ -1,15 +1,15 @@
-import StartLineParser
+import FirstLineParser
 import HeadersParser
 import System.IO
 import System.Environment
 import Text.Parsec
 import Text.Parsec.String
 
-data HTTPMessage = HTTPMessage HTTPStartLine Headers String deriving (Eq, Show)
+data HTTPMessage = HTTPMessage HTTPFirstLine Headers String deriving (Show)
 
 httpMessageParser :: Parser HTTPMessage
 httpMessageParser = do
-    sL <- startLine
+    sL <- try startLine <|> statusLine
     endOfLine
     hs <- headersP
     endOfLine
