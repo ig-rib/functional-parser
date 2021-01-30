@@ -17,8 +17,8 @@ data Status = Status Int String deriving (Show)
 method :: Parser Method
 method = do
     m <- choice [string "GET",
-            string "PUT",
-            string "POST",
+            try (string "PUT"),
+            try (string "POST"),
             string "DELETE",
             string "HEAD", 
             string "TRACE",
@@ -37,7 +37,7 @@ subdomains =
         Control.Applicative.<|>
         try ((++) <$> ((:) <$> alphaNum <*> string "/") <*> option "" subdomains)
         Control.Applicative.<|>
-        try ((: []) <$> alphaNum) 
+        ((: []) <$> alphaNum) 
 
 requestTarget :: Parser RequestTarget
 requestTarget = do
